@@ -5,7 +5,10 @@ pipeline {
     maven "M3"
     jdk "JDK17"
   }
-
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('dockerCredential')
+  }
+  
   stages {
     stage('Git Clone') {
       steps  {
@@ -41,6 +44,10 @@ pipeline {
     stage('Docker Image Upload') {
       steps {
          echo 'Docker Image Upload'
+         sh """
+           echo $DOCKERHUB_CREDENTIALS_PWS | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+           docker push kwangil6292/spring-petclinic:latest
+           """
       }
     }
 
