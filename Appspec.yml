@@ -5,7 +5,7 @@ os: linux
 files:
   - source: /
     destnation: /home/ubuntu
-    overwrite: yes                   //덮어쓰기
+#    overwrite: yes                   //덮어쓰기
 file_exists_behavior: OVERWRITE     // 덮어쓰기
 
 // 실행 디렉터리 권한 설정
@@ -22,6 +22,6 @@ hooks:
       runas: ubuntu
 
   ApplicationStart:
-    - location: scripts/start.sh
+    - location: scripts/run_process.sh
       timeout: 300
       runas: ubuntu
