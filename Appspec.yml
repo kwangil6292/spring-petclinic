@@ -22,6 +22,6 @@ hooks:
       runas: ubuntu
 
   ApplicationStart:
-    - location: scripts/kill_process.sh
+    - location: scripts/start.sh
       timeout: 300
       runas: ubuntu
