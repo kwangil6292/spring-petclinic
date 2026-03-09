@@ -1,14 +1,12 @@
-version : 0.0
+version: 0.0
 os: linux
-// 다운로드 받은 파일을
-// 작업 디레토리로 복사
+
 files:
   - source: /
-    destnation: /home/ubuntu
-#    overwrite: yes                   //덮어쓰기
-file_exists_behavior: OVERWRITE     // 덮어쓰기
+    destination: /home/ubuntu
 
-// 실행 디렉터리 권한 설정
+file_exists_behavior: OVERWRITE
+
 permissions:
   - object: /home/ubuntu
     pattern: "**"
