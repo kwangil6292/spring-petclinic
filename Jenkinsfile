@@ -67,32 +67,27 @@ pipeline {
          echo 'Upload to S3'
          dir("${env.WORKSPACE}") {
              sh 'zip -r scripts.zip ./scripts appspec.yml'
-             withAWS(region:"${REGION}", credentials:"${AWS_CREDENTIALS_NAME}") {
-               s3Upload(file:"scripts.zip", bucket:"user01-codedeploy-bucket")
+             withAWS(region: "${REGION}", credentials: 'AWSCredentials') {
+                 s3Upload(file: 'scripts.zip', bucket: 'user01-codedeploy-bucket')
              }
              sh 'rm -rf ./scripts.zip'
         }
       }
     }
     // Code Deploy
-    stage('Codedeploy Workload') {
-      steps {
-        sh '''
-           aws deploy create-deployment-group \
-           --application-name user01-code-deploy \
-           --auto-scaling-groups USER01-ASG-TARGET \
-           --deployment-group-name user01-code-deploy-${BUILD_NUMBER} \
-           --deployment-config-name CodeDeployDefault.OneAtATime \
-           --service-role-arn arn:aws:iam::491085389788:role/user01-code-deploy-service-role
-           '''
-        sh '''
-           aws deploy create-deployment --application-name user00-code-deploy \
-           --deployment-config-name CodeDeployDefault.OneAtATime \
-           --deployment-group-name user01-code-deploy-${BUILD_NUMBER} \
-           --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=scripts.zip
-           '''
-        sleep(10) // sleep 10s
-        } 
+    stage('CodeDeploy Deploy') {
+            steps {
+                withAWS(region: "${REGION}", credentials: 'AWSCredentials') {
+                    sh '''
+                    aws deploy create-deployment \
+                    --application-name user00-code-deploy \
+                    --deployment-config-name CodeDeployDefault.OneAtATime \
+                    --deployment-group-name user01-code-deploy \
+                    --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=scripts.zip
+                    '''
+                }
+                sleep(10)
+            }
     }
   }
 }
