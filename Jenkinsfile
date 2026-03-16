@@ -68,7 +68,7 @@ pipeline {
          dir("${env.WORKSPACE}") {
              sh 'zip -r scripts.zip ./scripts appspec.yml'
              withAWS(region:"${REGION}", credentials:"${AWS_CREDENTIALS_NAME}") {
-               s3Upload(file:"scripts.zip", bucket:"user00-codedeploy-bucket")
+               s3Upload(file:"scripts.zip", bucket:"user01-codedeploy-bucket")
              }
              sh 'rm -rf ./scripts.zip'
         }
