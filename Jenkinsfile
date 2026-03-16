@@ -80,7 +80,7 @@ pipeline {
                 withAWS(region: "${REGION}", credentials: "${AWS_CREDENTIALS_NAME}") {
                     sh '''
                     aws deploy create-deployment \
-                    --application-name user00-code-deploy \
+                    --application-name user01-code-deploy \
                     --deployment-config-name CodeDeployDefault.OneAtATime \
                     --deployment-group-name user01-code-deploy \
                     --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=scripts.zip
