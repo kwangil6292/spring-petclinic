@@ -72,6 +72,9 @@ pipeline {
               s3Upload(file:"scripts.zip", bucket:"user01-codedeploy-bucket")
             }
             sh 'rm -rf ./scripts.zip'
+        }
+      }
+    }
     // Code Deploy
     stage('Codedeploy Workload') {
       steps {
