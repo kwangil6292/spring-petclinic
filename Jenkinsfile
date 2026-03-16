@@ -5,7 +5,6 @@ pipeline {
     maven "M3"
     jdk "JDK21"
   }
-  
   environment {
     REGION = "ap-northeast-2"
     DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
