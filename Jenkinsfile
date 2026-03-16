@@ -77,7 +77,7 @@ pipeline {
     // Code Deploy
     stage('CodeDeploy Deploy') {
             steps {
-                withAWS(region: "${REGION}", credentials: 'AWSCredentials') {
+                withAWS(region: "${REGION}", credentials: "${AWS_CREDENTIALS_NAME}") {
                     sh '''
                     aws deploy create-deployment \
                     --application-name user00-code-deploy \
