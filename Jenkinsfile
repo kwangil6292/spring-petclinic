@@ -3,11 +3,13 @@ pipeline {
 
   tools {
     maven "M3"
-    jdk "JDK17"
+    jdk "JDK21"
   }
   
   environment {
-    DOCKERHUB_CREDENTIALS = credentials('dockerCredential')
+    REGION = "ap-northeast-2"
+    DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
+    AWS_CREDENTIALS_NAME = credentials('AWSCredentials')
   }
   
   stages {
@@ -60,29 +62,35 @@ pipeline {
       }
     }
 
-    // SSH Publish
-    stage('SSH Publish') {
+    // Upload to S3
+    stage(Upload to S3') {
       steps {
-        echo 'SSH Publish'
-        sshPublisher(publishers: [sshPublisherDesc(configName: 'target', 
-        transfers: [sshTransfer(cleanRemote: false, 
-        excludes: '',
-        execCommand: ''' 
-        docker rm -f $(docker ps -aq)
-        docker rmi -f $(docker images -q)
-        docker run -itd -p 80:8080 --name=spring-petclinic kwangil1818/spring-petclinic:latest
-        ''',
-        execTimeout: 120000, 
-        flatten: false, 
-        makeEmptyDirs: false, 
-        noDefaultExcludes: false, 
-        patternSeparator: '[, ]+', 
-        remoteDirectory: '', 
-        remoteDirectorySDF: false, 
-        removePrefix: 'target', sourceFiles: '')], 
-        usePromotionTimestamp: false, 
-        useWorkspaceInPromotion: false, verbose: false)])
-      }
-    }    
+        echo 'Upload to S3'
+        dir("$(env.WORKSPACE)") {
+            sh 'zip -r scripts ./scripts appspec.yml'
+            withAWS(region:"${REGION}" , credentials: "${AWS_CREDENTIALS_NAME}") {
+              s3Upload(file:"scripts.zip", bucket:"user01-codedeploy-bucket")
+            }
+            sh 'rm -rf ./scripts.zip'
+    // Code Deploy
+    stage('Codedeploy Workload') {
+      steps {
+        sh '''
+           aws deploy create-deployment-group \
+           --application-name user01-code-deploy \
+           --auto-scaling-groups USER01-ASG-TARGET \
+           --deployment-group-name user01-code-deploy-${BUILD_NUMBER} \
+           --deployment-config-name CodeDeployDefault.OneAtATime \
+           --service-role-arn arn:aws:iam::491085389788:role/user01-code-deploy-service-role
+           '''
+        sh '''
+           aws deploy create-deployment --application-name user00-code-deploy \
+           --deployment-config-name CodeDeployDefault.OneAtATime \
+           --deployment-group-name user01-code-deploy-${BUILD_NUMBER} \
+           --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=scripts.zip
+           '''
+        sleep(10) // sleep 10s
+        } 
+    }
   }
 }
