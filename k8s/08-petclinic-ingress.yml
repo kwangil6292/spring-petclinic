@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: petclinic-ingress
+  namespace: user1-was
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: was.user1.goping.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: petclinic-svc
+                port:
+                  number: 8080
