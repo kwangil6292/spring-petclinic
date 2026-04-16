@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: petclinic
+  namespace: user1-was
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: petclinic
+      owner: user1
+  template:
+    metadata:
+      labels:
+        app: petclinic
+        owner: user1
+    spec:
+      containers:
+        - name: petclinic
+          image: kwangil1818/petclinic:latest
+          ports:
+            - containerPort: 8080
