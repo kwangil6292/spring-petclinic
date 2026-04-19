@@ -1,18 +1,15 @@
 pipeline {
     agent any
-
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         DOCKER_IMAGE = 'kwangil1818/petclinic'
     }
-
     stages {
         stage('Git Clone') {
             steps {
                 git url: 'https://github.com/kwangil6292/spring-petclinic.git', branch: 'main'
             }
         }
-
         stage('Install JDK 17') {
             steps {
                 sh '''
@@ -26,7 +23,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Gradle Build') {
             steps {
                 sh '''
@@ -43,7 +39,6 @@ pipeline {
                 failure { echo 'Gradle Build Failed' }
             }
         }
-
         stage('Docker Image Build') {
             steps {
                 sh """
@@ -52,7 +47,6 @@ pipeline {
                 """
             }
         }
-
         stage('Docker Image Push') {
             steps {
                 sh """
@@ -62,16 +56,16 @@ pipeline {
                 """
             }
         }
-
         stage('Docker Image Clean') {
             steps {
                 sh "docker rmi -f ${DOCKER_IMAGE}:${BUILD_NUMBER}"
             }
         }
-
         stage('K8s Deploy') {
             steps {
                 sh """
+                    kubectl create namespace user1-was --dry-run=client -o yaml | kubectl apply -f -
+                    kubectl apply -R -f k8s/
                     kubectl set image deployment/petclinic petclinic=${DOCKER_IMAGE}:${BUILD_NUMBER} -n user1-was
                     kubectl rollout status deployment/petclinic -n user1-was --timeout=60s
                 """
