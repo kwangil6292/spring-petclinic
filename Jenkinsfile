@@ -1,9 +1,7 @@
 pipeline {
   agent any
   environment {
-    REGION = "ap-northeast-2"
     DOCKERHUB_CREDENTIALS = credentials('DockerCredentials')
-    AWS_CREDENTIALS_NAME = "AWSCredentials"
     DOCKER_IMAGE = 'kwangil1818/petclinic'
   }
   stages {
@@ -60,24 +58,21 @@ pipeline {
       steps {
         dir("${env.WORKSPACE}") {
           sh 'zip -r scripts.zip ./scripts appspec.yml'
-          withAWS(region:"${REGION}", credentials:"${AWS_CREDENTIALS_NAME}") {
-            s3Upload(file:"scripts.zip", bucket:"user01-codedeploy-bucket")
-          }
+          sh 'aws s3 cp scripts.zip s3://user01-codedeploy-bucket/scripts.zip --region ap-northeast-2'
           sh 'rm -rf scripts.zip'
         }
       }
     }
     stage('CodeDeploy') {
       steps {
-        withAWS(region:"${REGION}", credentials:"${AWS_CREDENTIALS_NAME}") {
-          sh '''
-            aws deploy create-deployment \
-              --application-name user01-code-deploy \
-              --deployment-config-name CodeDeployDefault.OneAtATime \
-              --deployment-group-name user01-code-deploy \
-              --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=scripts.zip
-          '''
-        }
+        sh '''
+          aws deploy create-deployment \
+            --application-name user01-code-deploy \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --deployment-group-name user01-code-deploy \
+            --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=scripts.zip \
+            --region ap-northeast-2
+        '''
       }
     }
   }
