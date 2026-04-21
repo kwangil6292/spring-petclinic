@@ -67,9 +67,9 @@ pipeline {
       steps {
         sh '''
           aws deploy create-deployment \
-            --application-name user01-code-deploy \
+            --application-name user01-app \
             --deployment-config-name CodeDeployDefault.OneAtATime \
-            --deployment-group-name user01-code-deploy \
+            --deployment-group-name user01-dg \
             --s3-location bucket=user01-codedeploy-bucket,bundleType=zip,key=scripts.zip \
             --region ap-northeast-2
         '''
