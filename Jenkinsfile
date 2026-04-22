@@ -63,6 +63,11 @@ pipeline {
         }
       }
     }
+    stage('배포 승인') {
+      steps {
+        input message: '운영 서버에 배포할까요?', ok: '배포 승인'
+      }
+    }
     stage('CodeDeploy') {
       steps {
         sh '''
