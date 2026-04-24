@@ -2,7 +2,7 @@ version: "3.9"
 # test webhook
 services:
   spring-petclinic:
-    image: s4616/spring-petclinic:latest
+    image: kwangil1818/petclinic:latest
     container_name: spring-petclinic
     ports:
       - "8080:8080"
